@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { Button, View, Text, StyleSheet, Platform, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -55,6 +55,10 @@ const shopData = [ // dummy data
 ];
 
 function OpenShop({ route, navigation }) {
+  const [ isInvVisible, setInvVisibility ] = useState(false);
+  function toggleInvVis() {
+    setInvVisibility(!isInvVisible);
+  }
   const { shopId } = route.params;
   let shop;
   for (const s in shopData) {
@@ -71,7 +75,21 @@ function OpenShop({ route, navigation }) {
   }
   return (
     <View style={{ padding: 10 }}>
-      <Text>{shopId}</Text>
+      <Text>ID: {shop.id}</Text>
+      <Text>Name: {shop.name}</Text>
+      <Text>Address: {shop.address}</Text>
+      <Text>Owner: {shop.ownerId}</Text>
+      <View>
+        {isInvVisible ? (
+          <View>
+            {shop.inventory.map((item) => (<>
+              <Text>{item.itemName} x{item.itemQnt} (ID: {item.itemId})</Text>
+            </>))}
+            <Button title="Hide inventory" onPress={toggleInvVis} />
+          </View>) : (
+            <Button title="Show inventory" onPress={toggleInvVis} />
+        )}
+      </View>
     </View>
   );
 }
