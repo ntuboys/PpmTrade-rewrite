@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
+
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
@@ -55,7 +56,7 @@ const shopData = [ // dummy data
 ];
 
 function OpenShop({ route, navigation }) {
-  const [ isInvVisible, setInvVisibility ] = useState(false);
+  const [isInvVisible, setInvVisibility] = useState(false);
   function toggleInvVis() {
     setInvVisibility(!isInvVisible);
   }
@@ -82,13 +83,13 @@ function OpenShop({ route, navigation }) {
       <View>
         {isInvVisible ? (
           <View>
-            {shop.inventory.map((item) => (<>
-              <Text>{item.itemName} x{item.itemQnt} (ID: {item.itemId})</Text>
-            </>))}
+            {shop.inventory.map((item,i) => (
+              <Text key={i}>{item.itemName} x{item.itemQnt} (ID: {item.itemId})</Text>
+            ))}
             <Button title="Hide inventory" onPress={toggleInvVis} />
           </View>) : (
             <Button title="Show inventory" onPress={toggleInvVis} />
-        )}
+          )}
       </View>
     </View>
   );
