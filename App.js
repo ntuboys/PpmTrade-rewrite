@@ -196,11 +196,6 @@ export default function App({ navigation }) {
         ) : (
           <Drawer.Navigator initialRouteName="Home">
             <Drawer.Screen name="Home" component={HomeRoot} />
-            <Button
-              title="test" onPress={() => {
-                console.log('pressed!');
-              }}
-            />
           </Drawer.Navigator>
         )}
       </NavigationContainer>
