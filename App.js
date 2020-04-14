@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Formik } from 'formik';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeRoot from './components/home';
+import ShopsRoot from './components/shops';
 import { AuthContext } from './components/contexts';
 
 function SplashScreen() {
@@ -15,7 +16,7 @@ function SplashScreen() {
   );
 }
 
-function SignInScreen() {
+function SignInScreen({ navigation }) {
   const [ username, setUsername ] = React.useState('');
   const [ password, setPassword ] = React.useState('');
 
@@ -55,6 +56,74 @@ function SignInScreen() {
           </View>
         )}
       </Formik>
+      <View>
+        <Button
+          title="SignUp" onPress={() => {
+            navigation.navigate('SignUp');
+          }}
+        />
+      </View>
+    </View>
+  );
+}
+
+function signUpScreen() {
+  const { signUp } = React.useContext(AuthContext);
+  return (
+    <View>
+      <Formik
+        initialValues={{ username: null, password: null, confPassword: null, email: null }}
+        onSubmit={(values) => {
+          console.log(values);
+          if (values.password === values.confPassword) {
+            signUp({ username: values.username, password: values.password });
+          } else {
+            Alert.alert(
+              'Passwords not the same',
+              'msg',
+              [ { text: 'OK' } ],
+              { cancelable: false },
+            );
+          }
+        }}
+      >
+
+        {({ handleChange, handleBlur, handleSubmit, values }) => (
+          <View>
+            <View style={{ flexDirection: 'row' }}>
+              <Text>Username</Text>
+              <TextInput
+                onChangeText={handleChange('username')}
+                onBlur={handleBlur('username')}
+                value={values.username}
+                style={{ width: 200, backgroundColor: 'white' }}
+                placeholder="arek"
+              />
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              <Text>Password</Text>
+              <TextInput
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+                value={values.password}
+                style={{ width: 200, backgroundColor: 'white' }}
+                placeholder="pass"
+              />
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              <Text>Password again</Text>
+              <TextInput
+                onChangeText={handleChange('confPassword')}
+                onBlur={handleBlur('confPassword')}
+                value={values.confPassword}
+                style={{ width: 200, backgroundColor: 'white' }}
+                placeholder="pass again"
+              />
+            </View>
+            <Button onPress={handleSubmit} title="Submit" />
+          </View>
+        )}
+      </Formik>
     </View>
   );
 }
@@ -87,6 +156,8 @@ export default function App({ navigation }) {
             userToken: null,
             userUsername: null,
           };
+        default:
+          throw Error('invalid case');
       }
     },
     {
@@ -136,7 +207,7 @@ export default function App({ navigation }) {
           redirect: 'follow',
         };
 
-        fetch('http://192.168.0.23:4000/auth/login', requestOptions)
+        fetch('http://192.168.0.28:4000/auth/login', requestOptions)
           .then((response) => response.text())
           .then((result) => {
             result = JSON.parse(result);
@@ -171,7 +242,6 @@ export default function App({ navigation }) {
         dispatch({ type: 'SIGN_OUT' });
       },
       signUp: async (data) => {
-        // In a production app, we need to send user data to server and get a token
         // We will also need to handle errors if sign up failed
         // After getting token, we need to persist the token using `AsyncStorage`
         // In the example, we'll use a dummy token
@@ -192,10 +262,12 @@ export default function App({ navigation }) {
         ) : state.userToken == null ? (
           <Stack.Navigator>
             <Stack.Screen name="SignIn" component={SignInScreen} />
+            <Stack.Screen name="SignUp" component={signUpScreen} />
           </Stack.Navigator>
         ) : (
           <Drawer.Navigator initialRouteName="Home">
             <Drawer.Screen name="Home" component={HomeRoot} />
+            <Drawer.Screen name="Shops" component={ShopsRoot} />
           </Drawer.Navigator>
         )}
       </NavigationContainer>
