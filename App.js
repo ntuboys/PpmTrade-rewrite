@@ -17,8 +17,8 @@ function SplashScreen() {
 }
 
 function SignInScreen({ navigation }) {
-  const [ username, setUsername ] = React.useState('');
-  const [ password, setPassword ] = React.useState('');
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
 
   const { signIn } = React.useContext(AuthContext);
 
@@ -76,12 +76,12 @@ function signUpScreen() {
         onSubmit={(values) => {
           console.log(values);
           if (values.password === values.confPassword) {
-            signUp({ username: values.username, password: values.password });
+            signUp({ username: values.username, password: values.password, email: values.email });
           } else {
             Alert.alert(
               'Passwords not the same',
               'msg',
-              [ { text: 'OK' } ],
+              [{ text: 'OK' }],
               { cancelable: false },
             );
           }
@@ -111,6 +111,16 @@ function signUpScreen() {
               />
             </View>
             <View style={{ flexDirection: 'row' }}>
+              <Text>email</Text>
+              <TextInput
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                value={values.email}
+                style={{ width: 200, backgroundColor: 'white' }}
+                placeholder="email"
+              />
+            </View>
+            <View style={{ flexDirection: 'row' }}>
               <Text>Password again</Text>
               <TextInput
                 onChangeText={handleChange('confPassword')}
@@ -132,7 +142,7 @@ const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
 export default function App({ navigation }) {
-  const [ state, dispatch ] = React.useReducer(
+  const [state, dispatch] = React.useReducer(
     (prevState, action) => {
       switch (action.type) {
         case 'RESTORE_TOKEN':
@@ -176,16 +186,37 @@ export default function App({ navigation }) {
 
       try {
         userToken = await AsyncStorage.getItem('userToken');
-        userToken = await AsyncStorage.getItem('userUsername');
+        userUsername = await AsyncStorage.getItem('userUsername');
       } catch (e) {
         // Restoring token failed
       }
 
-      // After restoring token, we may need to validate it in production apps
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("token", userToken);
+      myHeaders.append("username", userUsername);
 
-      // This will switch to the App screen or Auth screen and this loading
-      // screen will be unmounted and thrown away.
-      dispatch({ type: 'RESTORE_TOKEN', token: userToken, username: userUsername });
+      var urlencoded = new URLSearchParams();
+
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: '',
+        redirect: 'follow'
+      };
+
+      fetch("http://192.168.0.28:4000/auth/token", requestOptions)
+        .then(response => response.text())
+        .then(async (result) => {
+          result = JSON.parse(result);
+          if (result.message === "valid") {
+            dispatch({ type: 'RESTORE_TOKEN', token: userToken, username: userUsername });
+          } else {
+            console.log('not valid, signing out');
+            dispatch({ type: 'RESTORE_TOKEN', token: null, username: null });
+          }
+        })
+        .catch(error => console.log('error', error.message));
     };
 
     bootstrapAsync();
@@ -231,7 +262,7 @@ export default function App({ navigation }) {
             Alert.alert(
               'Error',
               error.message,
-              [ { text: 'OK' } ],
+              [{ text: 'OK' }],
               { cancelable: false },
             );
           });
@@ -245,8 +276,37 @@ export default function App({ navigation }) {
         // We will also need to handle errors if sign up failed
         // After getting token, we need to persist the token using `AsyncStorage`
         // In the example, we'll use a dummy token
+        console.log(`signup data:`);
+        console.log(data);
 
-        dispatch({ type: 'SIGN_IN', token: 'dummy-auth-token', username: data.username });
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var urlencoded = new URLSearchParams();
+        urlencoded.append("password", data.password);
+        urlencoded.append("email", data.email);
+        urlencoded.append("username", data.username);
+        console.log(urlencoded);
+
+        var requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          body: JSON.stringify(data),
+          redirect: 'follow'
+        };
+
+        fetch("http://192.168.0.28:4000/auth/register", requestOptions)
+          .then(response => response.text())
+          .then(result => {
+
+            result = JSON.parse(result);
+            if (!result.username || !result.email) {
+              throw Error(result.message);
+            }
+            Alert.alert("success?", "try to sign in");
+          })
+          .catch(error =>
+            Alert.alert("error", error.message));
       },
     }),
     [],
@@ -265,11 +325,11 @@ export default function App({ navigation }) {
             <Stack.Screen name="SignUp" component={signUpScreen} />
           </Stack.Navigator>
         ) : (
-          <Drawer.Navigator initialRouteName="Home">
-            <Drawer.Screen name="Home" component={HomeRoot} />
-            <Drawer.Screen name="Shops" component={ShopsRoot} />
-          </Drawer.Navigator>
-        )}
+              <Drawer.Navigator initialRouteName="Home">
+                <Drawer.Screen name="Home" component={HomeRoot} />
+                <Drawer.Screen name="Shops" component={ShopsRoot} />
+              </Drawer.Navigator>
+            )}
       </NavigationContainer>
     </AuthContext.Provider>
   );
