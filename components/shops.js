@@ -64,6 +64,9 @@ function OpenShop({ route, navigation }) {
   }
   const { shop, auth } = route.params;
 
+  console.log('=========shop==============')
+  console.log(shop);
+
   if (shop) {
     navigation.setOptions({ title: shop.name });
   } else {
@@ -72,7 +75,7 @@ function OpenShop({ route, navigation }) {
   }
   return (
     <View style={{ padding: 10 }}>
-      <Text>ID: {shop.id}</Text>
+      <Text>ID: {shop._id}</Text>
       <Text>Name: {shop.name}</Text>
       <Text>Address: {shop.address}</Text>
       <Text>Owner: {shop.ownerId}</Text>
@@ -80,9 +83,12 @@ function OpenShop({ route, navigation }) {
         {isInvVisible ? (
           <View>
             {shop.stock.map((item, i) => (
-              <Text key={i}>{item.itemName} x{item.itemQnt} (ID: {item.itemId})</Text>
+              <Text key={i}>{item.name} x{item.qnt} (ID: {item._id}, Price: {item.price})</Text>
             ))}
             <Button title="Hide inventory" onPress={toggleInvVis} />
+            <Button title="Add to inventory" onPress={() => {
+              navigation.navigate('NewItem', { shop: shop, auth: auth })
+            }} />
           </View>) : (
             <Button title="Show inventory" onPress={toggleInvVis} />
           )}
@@ -106,7 +112,6 @@ function ShopList({ navigation, route }) {
           // error 
         }
     }
-
   },
     { loading: true, shops: [] });
   const getShops = async () => {
@@ -223,6 +228,7 @@ function NewShop() {
     </View>
   )
 }
+
 function ShopsHome({ navigation }) {
   return (
     <UserContext.Consumer>
@@ -230,6 +236,81 @@ function ShopsHome({ navigation }) {
       }
     </UserContext.Consumer>
   );
+}
+
+function NewItem({ navigation, route }) {
+  const { shop, auth } = route.params;
+  console.log(shop);
+  return (<Formik
+    initialValues={{ name: null, price: null, qnt: null, description: null }}
+    onSubmit={(values) => {
+      console.log('trying to submit: ')
+      console.log(values);
+
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("token", auth.userToken);
+      myHeaders.append("username", auth.userUsername);
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: JSON.stringify(values),
+        redirect: 'follow'
+      };
+
+      fetch(`http://192.168.0.28:4000/shop/${shop._id}/inventory/add`, requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
+    }}
+  >
+    {({ handleChange, handleBlur, handleSubmit, values }) => (
+      <View>
+        <View style={{ flexDirection: 'row' }}>
+          <Text>name</Text>
+          <TextInput
+            onChangeText={handleChange('name')}
+            onBlur={handleBlur('name')}
+            value={values.name}
+            style={{ width: 200, backgroundColor: 'white' }}
+            placeholder="arek"
+          />
+        </View>
+        <View style={{ flexDirection: 'row' }}>
+          <Text>price</Text>
+          <TextInput
+            onChangeText={handleChange('price')}
+            onBlur={handleBlur('price')}
+            value={values.price}
+            style={{ width: 200, backgroundColor: 'white' }}
+            placeholder="pass"
+          />
+        </View>
+        <View style={{ flexDirection: 'row' }}>
+          <Text>qnt</Text>
+          <TextInput
+            onChangeText={handleChange('qnt')}
+            onBlur={handleBlur('qnt')}
+            value={values.qnt}
+            style={{ width: 200, backgroundColor: 'white' }}
+            placeholder="pass"
+          />
+        </View>
+        <View style={{ flexDirection: 'row' }}>
+          <Text>desc</Text>
+          <TextInput
+            onChangeText={handleChange('description')}
+            onBlur={handleBlur('description')}
+            value={values.description}
+            style={{ width: 200, backgroundColor: 'white' }}
+            placeholder="pass"
+          />
+        </View>
+        <Button onPress={handleSubmit} title="Submit" />
+      </View>
+    )}
+  </Formik>
+  )
 }
 
 export default function ShopsRoot({ navigation }) {
@@ -256,6 +337,7 @@ export default function ShopsRoot({ navigation }) {
       <Stack.Screen name="Shop" component={OpenShop} />
       <Stack.Screen name="NewShop" component={NewShop} />
       <Stack.Screen name="ShopList" component={ShopList} />
+      <Stack.Screen name="NewItem" component={NewItem} />
     </Stack.Navigator>
   );
 }
