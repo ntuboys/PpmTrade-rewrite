@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Button, View, Text, StyleSheet, Platform, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
+import { Button, View, Text, TextInput, StyleSheet, Platform, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { AuthContext, UserContext } from './contexts.js';
+import { Formik } from 'formik';
 
 
 const Drawer = createDrawerNavigator();
@@ -60,13 +62,7 @@ function OpenShop({ route, navigation }) {
   function toggleInvVis() {
     setInvVisibility(!isInvVisible);
   }
-  const { shopId } = route.params;
-  let shop;
-  for (const s in shopData) {
-    if (shopData[s].id == shopId) {
-      shop = shopData[s];
-    }
-  }
+  const { shop, auth } = route.params;
 
   if (shop) {
     navigation.setOptions({ title: shop.name });
@@ -83,7 +79,7 @@ function OpenShop({ route, navigation }) {
       <View>
         {isInvVisible ? (
           <View>
-            {shop.inventory.map((item,i) => (
+            {shop.stock.map((item, i) => (
               <Text key={i}>{item.itemName} x{item.itemQnt} (ID: {item.itemId})</Text>
             ))}
             <Button title="Hide inventory" onPress={toggleInvVis} />
@@ -95,20 +91,144 @@ function OpenShop({ route, navigation }) {
   );
 }
 
+function ShopList({ navigation, route }) {
+  const { auth } = route.params;
+  const [state, dispatch] = React.useReducer((prevState, action) => {
+    switch (action.type) {
+      case 'LOADED_SHOPS':
+        return {
+          ...prevState,
+          loading: false,
+          shops: action.shops,
+        };
+      default:
+        return {
+          // error 
+        }
+    }
+
+  },
+    { loading: true, shops: [] });
+  const getShops = async () => {
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+    myHeaders.append("token", auth.userToken);
+    myHeaders.append("username", auth.userUsername);
+
+    var requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      body: null,
+      redirect: 'follow'
+    };
+
+    fetch("http://192.168.0.28:4000/shop/", requestOptions)
+      .then(response => response.text())
+      .then(result => {
+        result = JSON.parse(result);
+        dispatch({ type: 'LOADED_SHOPS', shops: result })
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+  React.useEffect(() => {
+    getShops();
+  }, []);
+  return (
+    <View>
+      {state.loading ? <Text>loading</Text> :
+        state.shops.map(shop => {
+          return (
+            <TouchableOpacity key={shop._id} onPress={() => navigation.navigate('Shop', {
+              shop: shop, auth: auth
+            })}>
+              <View style={{
+                borderBottomColor: 'black', borderBottomWidth: 1, padding: 15
+              }}>
+                <Text>Name: {shop.name}</Text>
+                <Text>Address: {shop.address}</Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      <Button title="Refresh" onPress={() => getShops()} />
+    </View>
+  )
+}
+
+function NewShop() {
+  const createShop = (values, user) => {
+    console.log(values)
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("token", user.userToken);
+    myHeaders.append("username", user.userUsername);
+
+    var urlencoded = new URLSearchParams();
+    urlencoded.append("name", values.name);
+    urlencoded.append("address", values.address);
+
+    var requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: JSON.stringify(values),
+      redirect: 'follow'
+    };
+
+    fetch("http://192.168.0.28:4000/shop/create", requestOptions)
+      .then(response => response.text())
+      .then(result => console.log(result))
+      .catch(error => console.log('error', error));
+  };
+
+  return (
+    <View>
+      <UserContext.Consumer>
+        {user => (
+          <Formik
+            initialValues={{ name: null, address: null }}
+            onSubmit={(values) => {
+              createShop(values, user);
+            }}
+          >
+            {({ handleChange, handleBlur, handleSubmit, values }) => (
+              <View>
+                <View style={{ flexDirection: 'row' }}>
+                  <Text>Shop Name</Text>
+                  <TextInput
+                    onChangeText={handleChange('name')}
+                    onBlur={handleBlur('name')}
+                    value={values.name}
+                    style={{ width: 200, backgroundColor: 'white' }}
+                    placeholder="cool shop"
+                  />
+                </View>
+                <View style={{ flexDirection: 'row' }}>
+                  <Text>Address</Text>
+                  <TextInput
+                    onChangeText={handleChange('address')}
+                    onBlur={handleBlur('address')}
+                    value={values.address}
+                    style={{ width: 200, backgroundColor: 'white' }}
+                    placeholder="address"
+                  />
+                </View>
+                <Button onPress={handleSubmit} title="Submit" />
+              </View>
+            )}
+          </Formik>
+        )}
+      </UserContext.Consumer>
+    </View>
+  )
+}
 function ShopsHome({ navigation }) {
   return (
-    <View style={{ paddingHorizontal: 10 }}>
-      {shopData.map((shop, i) => (
-        <TouchableOpacity
-          underlayColor="white" onPress={() => navigation.navigate('Shop', { shopId: shop.id })} key={shop.id}
-          style={(i === shopData.length - 1 ? { paddingVertical: 20 } : { paddingVertical: 20, borderBottomWidth: 2, borderBottomColor: 'lightgray' })}
-        >
-          <View>
-            <Text style={{ textAlign: 'center', fontSize: 30 }}>{shop.name}</Text>
-          </View>
-        </TouchableOpacity>
-      ))}
-    </View>
+    <UserContext.Consumer>
+      {value => navigation.navigate('ShopList', { auth: value })
+      }
+    </UserContext.Consumer>
   );
 }
 
@@ -125,10 +245,17 @@ export default function ShopsRoot({ navigation }) {
               title="Menu" onPress={handleMenuButtonPress}
             />
           ),
+          headerRight: () => (
+            <Button
+              title="New" onPress={() => navigation.navigate('NewShop')}
+            />
+          )
         }}
         component={ShopsHome}
       />
       <Stack.Screen name="Shop" component={OpenShop} />
+      <Stack.Screen name="NewShop" component={NewShop} />
+      <Stack.Screen name="ShopList" component={ShopList} />
     </Stack.Navigator>
   );
 }
