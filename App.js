@@ -6,7 +6,7 @@ import { Formik } from 'formik';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeRoot from './components/home';
 import ShopsRoot from './components/shops';
-import { AuthContext } from './components/contexts';
+import { AuthContext, UserContext} from './components/contexts';
 
 function SplashScreen() {
   return (
@@ -325,10 +325,12 @@ export default function App({ navigation }) {
             <Stack.Screen name="SignUp" component={signUpScreen} />
           </Stack.Navigator>
         ) : (
+          <UserContext.Provider value={state}>
               <Drawer.Navigator initialRouteName="Home">
                 <Drawer.Screen name="Home" component={HomeRoot} />
                 <Drawer.Screen name="Shops" component={ShopsRoot} />
               </Drawer.Navigator>
+          </UserContext.Provider>
             )}
       </NavigationContainer>
     </AuthContext.Provider>
