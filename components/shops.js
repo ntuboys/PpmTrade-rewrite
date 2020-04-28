@@ -10,53 +10,6 @@ import { Formik } from 'formik';
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
-const shopData = [ // dummy data
-  {
-    id: 0,
-    name: 'shop 1 name',
-    address: 'shop 1 location',
-    ownerId: 'arandomstringofletters',
-    inventory: [
-      {
-        itemId: 1,
-        itemName: 'item 1 name',
-        itemDesc: 'item 1 desc',
-        itemPrice: 1.1,
-        itemQnt: 1,
-      },
-      {
-        itemId: 2,
-        itemName: 'item 2 name',
-        itemDesc: 'item 2 desc',
-        itemPrice: 2.2,
-        itemQnt: 2,
-      },
-    ],
-  },
-  {
-    id: 1,
-    name: 'shop 2 name',
-    address: 'shop 2 location',
-    ownerId: 'arandomstringofletters',
-    inventory: [
-      {
-        itemId: 1,
-        itemName: 'item 1 name',
-        itemDesc: 'item 1 desc',
-        itemPrice: 1.1,
-        itemQnt: 1,
-      },
-      {
-        itemId: 2,
-        itemName: 'item 2 name',
-        itemDesc: 'item 2 desc',
-        itemPrice: 2.2,
-        itemQnt: 2,
-      },
-    ],
-  },
-];
-
 function OpenShop({ route, navigation }) {
   const [isInvVisible, setInvVisibility] = useState(false);
   function toggleInvVis() {
