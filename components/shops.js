@@ -10,7 +10,6 @@ import { Formik } from 'formik';
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
-<<<<<<< HEAD
 function OpenShop({ route, navigation }) {
   const [isInvVisible, setInvVisibility] = useState(false);
   function toggleInvVis() {
@@ -51,8 +50,6 @@ function OpenShop({ route, navigation }) {
   );
 }
 
-=======
->>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
 function ShopList({ navigation, route }) {
   const { auth } = route.params;
   const [state, dispatch] = React.useReducer((prevState, action) => {
@@ -83,11 +80,7 @@ function ShopList({ navigation, route }) {
       redirect: 'follow'
     };
 
-<<<<<<< HEAD
     fetch("http://13.77.96.221:4000/shop/", requestOptions)
-=======
-    fetch('http://13.77.96.221:4000/all/inventory/', requestOptions)
->>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
       .then(response => response.text())
       .then(result => {
         result = JSON.parse(result);
@@ -167,11 +160,7 @@ function BuyItem({ route, navigation }) {
       redirect: 'follow'
     };
 
-<<<<<<< HEAD
     fetch("http://13.77.96.221:4000/shop/create", requestOptions)
-=======
-    fetch("http://13.77.96.221:4000/buy", requestOptions)
->>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
       .then(response => response.text())
       .then(result => console.log(result))
       .catch(error => console.log('error', error));
@@ -245,7 +234,6 @@ function BuyItem({ route, navigation }) {
   )
 }
 
-<<<<<<< HEAD
 function ShopsHome({ navigation }) {
   return (
     <UserContext.Consumer>
@@ -330,8 +318,6 @@ function NewItem({ navigation, route }) {
   )
 }
 
-=======
->>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
 export default function ShopsRoot({ navigation }) {
   function handleMenuButtonPress() {
     navigation.toggleDrawer();

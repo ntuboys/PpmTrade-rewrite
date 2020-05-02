@@ -26,15 +26,8 @@
     "ios": {
       "supportsTablet": true
     },
-<<<<<<< HEAD
     "android": {
       "package": "com.ntubois.PpmTrade",
-=======
-    
-    "android": {
-      "package": "com.ntubois.PpmRetail",
->>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
-      "versionCode": 1
     }
   }
 }

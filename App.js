@@ -7,10 +7,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeRoot from './components/home';
 import ShopsRoot from './components/shops';
 import { AuthContext, UserContext } from './components/contexts';
-<<<<<<< HEAD
 import OrdersRoot from './components/orders';
-=======
->>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
 
 function SplashScreen() {
   return (
@@ -345,10 +342,7 @@ export default function App({ navigation }) {
                 <Drawer.Navigator initialRouteName="Home">
                   <Drawer.Screen name="Home" component={HomeRoot} />
                   <Drawer.Screen name="Shops" component={ShopsRoot} />
-<<<<<<< HEAD
                   <Drawer.Screen name="Orders" component={OrdersRoot} />
-=======
->>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
                 </Drawer.Navigator>
               </UserContext.Provider>
             )}
