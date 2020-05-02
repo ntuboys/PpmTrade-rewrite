@@ -7,7 +7,10 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeRoot from './components/home';
 import ShopsRoot from './components/shops';
 import { AuthContext, UserContext } from './components/contexts';
+<<<<<<< HEAD
 import OrdersRoot from './components/orders';
+=======
+>>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
 
 function SplashScreen() {
   return (
@@ -73,11 +76,11 @@ function signUpScreen() {
   return (
     <View>
       <Formik
-        initialValues={{ username: null, password: null, confPassword: null, email: null }}
+        initialValues={{ username: null, password: null, confPassword: null, email: null, invBy: null }}
         onSubmit={(values) => {
           console.log(values);
           if (values.password === values.confPassword) {
-            signUp({ username: values.username, password: values.password, email: values.email });
+            signUp({ username: values.username, password: values.password, email: values.email, invBy: values.invBy });
           } else {
             Alert.alert(
               'Passwords not the same',
@@ -131,6 +134,16 @@ function signUpScreen() {
                 placeholder="pass again"
               />
             </View>
+            <View style={{ flexDirection: 'row' }}>
+              <Text>invited by</Text>
+              <TextInput
+                onChangeText={handleChange('invBy')}
+                onBlur={handleBlur('invBy')}
+                value={values.invBy}
+                style={{ width: 200, backgroundColor: 'white' }}
+                placeholder="invBy"
+              />
+            </View>
             <Button onPress={handleSubmit} title="Submit" />
           </View>
         )}
@@ -176,6 +189,7 @@ export default function App({ navigation }) {
       isSignout: false,
       userToken: null,
       userUsername: null,
+      cartItems: [],
     },
   );
 
@@ -313,6 +327,7 @@ export default function App({ navigation }) {
     [],
   );
 
+
   return (
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>
@@ -330,7 +345,10 @@ export default function App({ navigation }) {
                 <Drawer.Navigator initialRouteName="Home">
                   <Drawer.Screen name="Home" component={HomeRoot} />
                   <Drawer.Screen name="Shops" component={ShopsRoot} />
+<<<<<<< HEAD
                   <Drawer.Screen name="Orders" component={OrdersRoot} />
+=======
+>>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
                 </Drawer.Navigator>
               </UserContext.Provider>
             )}

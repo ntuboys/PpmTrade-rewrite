@@ -3,13 +3,14 @@ import { Button, View, Text, TextInput, StyleSheet, Platform, TouchableHighlight
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { AuthContext, UserContext } from './contexts.js';
+import { AuthContext, UserContext, CartContext } from './contexts.js';
 import { Formik } from 'formik';
 
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
+<<<<<<< HEAD
 function OpenShop({ route, navigation }) {
   const [isInvVisible, setInvVisibility] = useState(false);
   function toggleInvVis() {
@@ -50,6 +51,8 @@ function OpenShop({ route, navigation }) {
   );
 }
 
+=======
+>>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
 function ShopList({ navigation, route }) {
   const { auth } = route.params;
   const [state, dispatch] = React.useReducer((prevState, action) => {
@@ -67,7 +70,7 @@ function ShopList({ navigation, route }) {
     }
   },
     { loading: true, shops: [] });
-  const getShops = async () => {
+  const getShops = () => {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
     myHeaders.append("token", auth.userToken);
@@ -80,10 +83,15 @@ function ShopList({ navigation, route }) {
       redirect: 'follow'
     };
 
+<<<<<<< HEAD
     fetch("http://13.77.96.221:4000/shop/", requestOptions)
+=======
+    fetch('http://13.77.96.221:4000/all/inventory/', requestOptions)
+>>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
       .then(response => response.text())
       .then(result => {
         result = JSON.parse(result);
+        console.log(result);
         dispatch({ type: 'LOADED_SHOPS', shops: result })
       })
       .catch(error => {
@@ -97,91 +105,147 @@ function ShopList({ navigation, route }) {
     <View>
       {state.loading ? <Text>loading</Text> :
         state.shops.map(shop => {
-          return (
-            <TouchableOpacity key={shop._id} onPress={() => navigation.navigate('Shop', {
-              shop: shop, auth: auth
-            })}>
-              <View style={{
-                borderBottomColor: 'black', borderBottomWidth: 1, padding: 15
-              }}>
-                <Text>Name: {shop.name}</Text>
-                <Text>Address: {shop.address}</Text>
-              </View>
-            </TouchableOpacity>
-          );
+          let view = [];
+          shop.shopStock.map(item => {
+            if (item.name || item.price || item.shopName) {
+
+              view.push(
+                <TouchableOpacity key={item._id} onPress={() => navigation.navigate('ItemView', { item: item, shop: shop.shopId })} style={{ borderBottomColor: 'black', borderBottomWidth: 2 }}>
+                  <Text>item name: {item.name}</Text>
+                  <Text>item desc: {item.desc}</Text>
+                  <Text>item price: {item.price}</Text>
+                  <Text>shop name: {shop.shopName}</Text>
+                </TouchableOpacity>
+              );
+            }
+          });
+          return view;
         })}
       <Button title="Refresh" onPress={() => getShops()} />
+    </View >
+  )
+}
+
+function ItemView({ route, navigation }) {
+  const { item, shop } = route.params;
+  return (
+    <View>
+      <Text>Item view!</Text>
+      <Text>{item.name}</Text>
+      <Text>{item.price}</Text>
+      <Button title="Buy Now" onPress={() => navigation.navigate('BuyItem', { item: item, shop: shop })} />
     </View>
   )
 }
 
-function NewShop() {
-  const createShop = (values, user) => {
-    console.log(values)
+function BuyItem({ route, navigation }) {
+  const { item, shop, auth } = route.params;
+  const { fname, lname, fline, sline, postcode } = route.params;
+  const address = {
+    fname,
+    lname,
+    fline,
+    sline,
+    postcode,
+  };
+
+  function buyItem(order) {
+    console.log(order);
+    console.log(item);
+    console.log(shop);
     var myHeaders = new Headers();
+    myHeaders.append("token", auth.userToken);
+    myHeaders.append("username", auth.userUsername);
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("token", user.userToken);
-    myHeaders.append("username", user.userUsername);
-
-    var urlencoded = new URLSearchParams();
-    urlencoded.append("name", values.name);
-    urlencoded.append("address", values.address);
-
+    order.shopId = shop;
+    order.item = item._id;
+    order.address = address;
     var requestOptions = {
       method: 'POST',
       headers: myHeaders,
-      body: JSON.stringify(values),
+      body: JSON.stringify(order),
       redirect: 'follow'
     };
 
+<<<<<<< HEAD
     fetch("http://13.77.96.221:4000/shop/create", requestOptions)
+=======
+    fetch("http://13.77.96.221:4000/buy", requestOptions)
+>>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
       .then(response => response.text())
       .then(result => console.log(result))
       .catch(error => console.log('error', error));
-  };
+  }
 
   return (
     <View>
-      <UserContext.Consumer>
-        {user => (
-          <Formik
-            initialValues={{ name: null, address: null }}
-            onSubmit={(values) => {
-              createShop(values, user);
-            }}
-          >
-            {({ handleChange, handleBlur, handleSubmit, values }) => (
-              <View>
-                <View style={{ flexDirection: 'row' }}>
-                  <Text>Shop Name</Text>
-                  <TextInput
-                    onChangeText={handleChange('name')}
-                    onBlur={handleBlur('name')}
-                    value={values.name}
-                    style={{ width: 200, backgroundColor: 'white' }}
-                    placeholder="cool shop"
-                  />
-                </View>
-                <View style={{ flexDirection: 'row' }}>
-                  <Text>Address</Text>
-                  <TextInput
-                    onChangeText={handleChange('address')}
-                    onBlur={handleBlur('address')}
-                    value={values.address}
-                    style={{ width: 200, backgroundColor: 'white' }}
-                    placeholder="address"
-                  />
-                </View>
-                <Button onPress={handleSubmit} title="Submit" />
-              </View>
-            )}
-          </Formik>
+      <Formik
+        initialValues={{ fname: null, lname: null, fline: null, sline: null, postcode: null }}
+        onSubmit={(values) => {
+          buyItem({ fname: values.fname, lname: values.lname, fline: values.fline, sline: values.sline, postcode: values.postcode });
+        }}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values }) => (
+          <View>
+            <View style={{ flexDirection: 'row' }}>
+              <Text>fname</Text>
+              <TextInput
+                onChangeText={handleChange('fname')}
+                onBlur={handleBlur('fname')}
+                value={values.fname}
+                style={{ width: 200, backgroundColor: 'white' }}
+                placeholder="arek"
+              />
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              <Text>lname</Text>
+              <TextInput
+                onChangeText={handleChange('lname')}
+                onBlur={handleBlur('lname')}
+                value={values.lname}
+                style={{ width: 200, backgroundColor: 'white' }}
+                placeholder="pass"
+              />
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              <Text>fline</Text>
+              <TextInput
+                onChangeText={handleChange('fline')}
+                onBlur={handleBlur('fline')}
+                value={values.fline}
+                style={{ width: 200, backgroundColor: 'white' }}
+                placeholder="pass"
+              />
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              <Text>sline</Text>
+              <TextInput
+                onChangeText={handleChange('sline')}
+                onBlur={handleBlur('sline')}
+                value={values.sline}
+                style={{ width: 200, backgroundColor: 'white' }}
+                placeholder="pass"
+              />
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              <Text>postcode</Text>
+              <TextInput
+                onChangeText={handleChange('postcode')}
+                onBlur={handleBlur('postcode')}
+                value={values.postcode}
+                style={{ width: 200, backgroundColor: 'white' }}
+                placeholder="pass"
+              />
+            </View>
+            <Button onPress={handleSubmit} title="Submit" />
+          </View>
         )}
-      </UserContext.Consumer>
+      </Formik>
     </View>
   )
 }
 
+<<<<<<< HEAD
 function ShopsHome({ navigation }) {
   return (
     <UserContext.Consumer>
@@ -266,31 +330,23 @@ function NewItem({ navigation, route }) {
   )
 }
 
+=======
+>>>>>>> d3ae340763edc78f44c8ecc9767809d232eac431
 export default function ShopsRoot({ navigation }) {
   function handleMenuButtonPress() {
     navigation.toggleDrawer();
   }
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Shops" options={{
-          headerLeft: () => (
-            <Button
-              title="Menu" onPress={handleMenuButtonPress}
-            />
-          ),
-          headerRight: () => (
-            <Button
-              title="New" onPress={() => navigation.navigate('NewShop')}
-            />
-          )
-        }}
-        component={ShopsHome}
-      />
-      <Stack.Screen name="Shop" component={OpenShop} />
-      <Stack.Screen name="NewShop" component={NewShop} />
-      <Stack.Screen name="ShopList" component={ShopList} />
-      <Stack.Screen name="NewItem" component={NewItem} />
-    </Stack.Navigator>
+    <UserContext.Consumer>
+      {value => {
+        return (
+          <Stack.Navigator>
+            <Stack.Screen name="ShopList" initialParams={{ auth: value }} component={ShopList} />
+            <Stack.Screen name="ItemView" initialParams={{ auth: value }} component={ItemView} />
+            <Stack.Screen name="BuyItem" initialParams={{ auth: value }} component={BuyItem} />
+          </Stack.Navigator>
+        );
+      }}
+    </UserContext.Consumer>
   );
 }
