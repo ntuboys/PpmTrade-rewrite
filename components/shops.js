@@ -80,7 +80,7 @@ function ShopList({ navigation, route }) {
       redirect: 'follow'
     };
 
-    fetch("http://192.168.0.28:4000/shop/", requestOptions)
+    fetch("http://13.77.96.221:4000/shop/", requestOptions)
       .then(response => response.text())
       .then(result => {
         result = JSON.parse(result);
@@ -134,7 +134,7 @@ function NewShop() {
       redirect: 'follow'
     };
 
-    fetch("http://192.168.0.28:4000/shop/create", requestOptions)
+    fetch("http://13.77.96.221:4000/shop/create", requestOptions)
       .then(response => response.text())
       .then(result => console.log(result))
       .catch(error => console.log('error', error));
@@ -211,7 +211,7 @@ function NewItem({ navigation, route }) {
         redirect: 'follow'
       };
 
-      fetch(`http://192.168.0.28:4000/shop/${shop._id}/inventory/add`, requestOptions)
+      fetch(`http://13.77.96.221:4000/shop/${shop._id}/inventory/add`, requestOptions)
         .then(response => response.text())
         .then(result => console.log(result))
         .catch(error => console.log('error', error));

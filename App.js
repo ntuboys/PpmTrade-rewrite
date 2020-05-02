@@ -6,7 +6,8 @@ import { Formik } from 'formik';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeRoot from './components/home';
 import ShopsRoot from './components/shops';
-import { AuthContext, UserContext} from './components/contexts';
+import { AuthContext, UserContext } from './components/contexts';
+import OrdersRoot from './components/orders';
 
 function SplashScreen() {
   return (
@@ -205,7 +206,7 @@ export default function App({ navigation }) {
         redirect: 'follow'
       };
 
-      fetch("http://192.168.0.28:4000/auth/token", requestOptions)
+      fetch("http://13.77.96.221:4000/auth/token", requestOptions)
         .then(response => response.text())
         .then(async (result) => {
           result = JSON.parse(result);
@@ -238,7 +239,7 @@ export default function App({ navigation }) {
           redirect: 'follow',
         };
 
-        fetch('http://192.168.0.28:4000/auth/login', requestOptions)
+        fetch('http://13.77.96.221:4000/auth/login', requestOptions)
           .then((response) => response.text())
           .then((result) => {
             result = JSON.parse(result);
@@ -295,7 +296,7 @@ export default function App({ navigation }) {
           redirect: 'follow'
         };
 
-        fetch("http://192.168.0.28:4000/auth/register", requestOptions)
+        fetch("http://13.77.96.221:4000/auth/register", requestOptions)
           .then(response => response.text())
           .then(result => {
 
@@ -325,12 +326,13 @@ export default function App({ navigation }) {
             <Stack.Screen name="SignUp" component={signUpScreen} />
           </Stack.Navigator>
         ) : (
-          <UserContext.Provider value={state}>
-              <Drawer.Navigator initialRouteName="Home">
-                <Drawer.Screen name="Home" component={HomeRoot} />
-                <Drawer.Screen name="Shops" component={ShopsRoot} />
-              </Drawer.Navigator>
-          </UserContext.Provider>
+              <UserContext.Provider value={state}>
+                <Drawer.Navigator initialRouteName="Home">
+                  <Drawer.Screen name="Home" component={HomeRoot} />
+                  <Drawer.Screen name="Shops" component={ShopsRoot} />
+                  <Drawer.Screen name="Orders" component={OrdersRoot} />
+                </Drawer.Navigator>
+              </UserContext.Provider>
             )}
       </NavigationContainer>
     </AuthContext.Provider>
